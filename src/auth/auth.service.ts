@@ -1,15 +1,19 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
-import * as bcrypt from 'bcryptjs'
 import { User } from 'src/users/users.entity';
+
 @Injectable()
 export class AuthService {
     constructor(private userService: UsersService, private jwtService: JwtService) {}
 
     async login(userDto: CreateUserDto) {
         const user = await this.validateUser(userDto);
+        if(!user) {
+            throw new NotFoundException('User not found!')
+        }
         return this.generateToken(user);
 
     }
@@ -34,12 +38,14 @@ export class AuthService {
 
     private async validateUser(userDto: CreateUserDto) {
         const user = await this.userService.getUserByEmail(userDto.email);
+        if(!user) {
+            throw new NotFoundException(`User with email: ${userDto.email} not found`)
+        }
         const passwordMatches = await bcrypt.compare(userDto.password, user.password);
         if (user && passwordMatches) {
             return user;
         } else {
             throw new UnauthorizedException('Wrong email or password.');
         }
-
     }
 }

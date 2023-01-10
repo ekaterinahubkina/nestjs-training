@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { CreateMallDto } from './dto/create-mall.dto';
+import { UpdateMallDto } from './dto/update-mall.dto';
 import { Mall } from './malls.entity';
 import { MallsService } from './malls.service';
 
@@ -13,7 +14,7 @@ export class MallsController {
     }
 
     @ApiOperation({ summary: 'Create new mall' })
-    @ApiResponse({ status: 200, type: Mall })  
+    @ApiResponse({ status: 200, type: Mall })
     @Post()
     create(@Body() mallDto: CreateMallDto) {
         return this.mallsService.createMall(mallDto)
@@ -31,5 +32,19 @@ export class MallsController {
     @Get('/:id')
     getUserById(@Param('id') id: number) {
         return this.mallsService.getMallById(id)
+    }
+
+    @ApiOperation({ summary: 'Delete mall and related stores' })
+    @ApiResponse({ status: 200 })
+    @Delete(':id')
+    deleteMall(@Param('id') id: number) {
+        return this.mallsService.deleteMall(id)
+    }
+
+    @ApiOperation({ summary: 'Update mall' })
+    @ApiResponse({ status: 200 })
+    @Patch(':id')
+    updateMall(@Param('id') id: number, @Body() mallDto: UpdateMallDto) {
+        return this.mallsService.updateMall(id, mallDto)
     }
 }

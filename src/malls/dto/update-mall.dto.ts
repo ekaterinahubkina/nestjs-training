@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { Store } from "src/stores/stores.entity";
 import { CategoryType } from "src/utils/types";
 
-export class CreateMallDto {
+export class UpdateMallDto {
     @ApiProperty({ example: 'Auchan', description: 'Mall\'s name' })
     readonly name: string;
 

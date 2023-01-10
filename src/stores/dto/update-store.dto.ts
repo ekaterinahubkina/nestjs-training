@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { CategoryType } from "src/utils/types";
 
-export class CreateStoreDto {
+export class UpdateStoreDto {
     @ApiProperty({ example: 'Nike', description: 'Store\'s name' })
     readonly name: string;
 

@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Mall } from 'src/malls/malls.entity';
 import { Repository } from 'typeorm';
 import { CreateStoreDto } from './dto/create-store.dto';
+import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './stores.entity';
 
 @Injectable()
@@ -26,10 +27,19 @@ export class StoresService {
         const store = await this.storeRepository.findOne({
             where: {
                 id: id,
-            }, relations: {
+            },
+            relations: {
                 mall: true
             }
         });
         return store;
+    }
+
+    async deleteStore(id: number) {
+        return await this.storeRepository.delete({ id })
+    }
+
+    async updateStore(id: number, dto: UpdateStoreDto) {
+        return await this.storeRepository.update({ id }, { ...dto })
     }
 }

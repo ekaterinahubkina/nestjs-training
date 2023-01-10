@@ -25,6 +25,6 @@ export class Mall {
     category: CategoryType;
 
     @ApiProperty({ example: '?', description: 'List of stores in this mall', required: false })
-    @OneToMany(() => Store, (store) => store.mall)
+    @OneToMany(() => Store, (store) => store.mall, { cascade: true })
     stores: Store[]
 }
