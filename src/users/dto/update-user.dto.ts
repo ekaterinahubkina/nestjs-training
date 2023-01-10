@@ -1,22 +1,31 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsEnum, IsOptional } from "class-validator";
 import { UserGenderType } from "src/utils/types";
 
 export class UpdateUserDto {
     @ApiProperty({ example: 'male', description: 'Gender (male or female)' })
-    gender: UserGenderType;
+    @IsOptional()
+    @IsEnum(['male', 'female', 'unspecified'])
+    readonly gender: UserGenderType;
 
     @ApiProperty({ example: 'John', description: 'First name' })
-    firstName: string;
+    @IsOptional()
+    readonly firstName: string;
 
     @ApiProperty({ example: 'Doe', description: 'Last name' })
-    lastName: string;
+    @IsOptional()
+    readonly lastName: string;
 
     @ApiProperty({ example: 'john-doe@gmail.com', description: 'Email' })
-    email: string;
+    @IsOptional()
+    @IsEmail()
+    readonly email: string;
 
     @ApiProperty({ example: '123ZXC!@$', description: 'Password' })
-    password: string;
+    @IsOptional()
+    readonly password: string;
 
     @ApiProperty({ example: '+74964903948', description: 'Telephone number' })
-    phoneNumber: string;
+    @IsOptional()
+    readonly phoneNumber: string;
 }

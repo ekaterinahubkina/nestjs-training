@@ -26,6 +26,6 @@ export class Store {
     category: CategoryType;
 
     @ManyToOne(() => Mall, (mall) => mall.stores, { orphanedRowAction: 'delete', onDelete: 'CASCADE', nullable: false })
-    @JoinColumn({ name: 'MallId' })
+    // @JoinColumn({ name: 'MallId' })
     mall: Mall
 }
