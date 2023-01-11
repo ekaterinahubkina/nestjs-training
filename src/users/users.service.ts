@@ -43,10 +43,32 @@ export class UsersService {
     }
 
     async updateUser(id: number, dto: UpdateUserDto) {
-        return await this.userRepository.update({ id }, { ...dto })
+        const updatedUser = await this.userRepository
+            .createQueryBuilder()
+            .update(User, dto)
+            .where('id = :id', { id })
+            .returning(['id', 'email', 'firstName', 'lastName', 'gender', 'phoneNumber'])
+            .updateEntity(true)
+            .execute();
+
+        return updatedUser.raw[0];
     }
 
     async deleteUser(id: number) {
-        return await this.userRepository.delete({ id })
+        
+        // const user = await this.getUserById(id);
+        // if (user) {
+        //     await this.userRepository.delete({ id });
+        //     return { messge: `User with id: ${id} was successfully deleted.` }
+        // }
+
+        const res = await this.userRepository.createQueryBuilder()
+            .delete()
+            .from(User)
+            .where("id = :id", { id })
+            .execute()
+
+        if (res.affected > 0) return { message: `User with id: ${id} successfully deleted` }
+        else throw new NotFoundException(`User with id: ${id} not found`)
     }
 }
