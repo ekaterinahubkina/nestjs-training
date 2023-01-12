@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Store } from 'src/stores/stores.entity';
 import { Repository } from 'typeorm';
@@ -29,10 +29,21 @@ export class MallsService {
     }
 
     async deleteMall(id: number) {
-        return await this.mallRepository.delete({ id })
+        const res = await this.mallRepository.delete({ id })
+
+        if (res.affected > 0) return { message: `Mall with id: ${id} successfully deleted` }
+        else throw new NotFoundException(`Mall with id: ${id} not found`)
     }
 
     async updateMall(id: number, dto: UpdateMallDto) {
-        return await this.mallRepository.update({ id }, { ...dto })
+        const updatedMall = await this.mallRepository
+            .createQueryBuilder()
+            .update(Mall, dto)
+            .where('id = :id', { id })
+            .returning('*')
+            .updateEntity(true)
+            .execute();
+
+        return updatedMall.raw[0];
     }
 }

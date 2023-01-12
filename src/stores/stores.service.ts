@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Mall } from 'src/malls/malls.entity';
 import { Repository } from 'typeorm';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './stores.entity';
+import { Mall } from 'src/malls/malls.entity';
 
 @Injectable()
 export class StoresService {
@@ -36,10 +36,23 @@ export class StoresService {
     }
 
     async deleteStore(id: number) {
-        return await this.storeRepository.delete({ id })
+        const res = await this.storeRepository.delete({ id })
+
+        if (res.affected > 0) return { message: `Store with id: ${id} successfully deleted` }
+        else throw new NotFoundException(`Store with id: ${id} not found`)
     }
 
     async updateStore(id: number, dto: UpdateStoreDto) {
-        return await this.storeRepository.update({ id }, { ...dto })
+        // return await this.storeRepository.update({ id }, { ...dto })
+
+        const updatedStore = await this.storeRepository
+            .createQueryBuilder()
+            .update(Store, dto)
+            .where('id = :id', { id })
+            .returning('*')
+            .updateEntity(true)
+            .execute();
+
+        return updatedStore.raw[0];
     }
 }
