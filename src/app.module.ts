@@ -27,6 +27,9 @@ import { Store } from './stores/stores.entity';
       database: process.env.POSTGRES_DATABASE,
       entities: [User, Mall, Store],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false
+      }
     }),
     UsersModule,
     AuthModule,
@@ -37,5 +40,5 @@ import { Store } from './stores/stores.entity';
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 }
