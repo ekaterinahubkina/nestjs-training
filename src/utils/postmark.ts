@@ -1,6 +1,6 @@
 import * as postmark from 'postmark';
 
-const client = new postmark.ServerClient("b66c910c-ecd6-4407-b8d2-d88746e55583");
+const client = new postmark.ServerClient(process.env.POSTMARK_TOKEN);
 
 export const sendConfirmationEmail = (email: string, name: string, token: string) => {
     client.sendEmailWithTemplate({
