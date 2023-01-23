@@ -71,4 +71,8 @@ export class UsersService {
         if (res.affected > 0) return { message: `User with id: ${id} successfully deleted` }
         else throw new NotFoundException(`User with id: ${id} not found`)
     }
+
+    async updateUserByEmail(email: string) {
+        return await this.userRepository.update({ email }, { isConfirmed: true })
+    }
 }

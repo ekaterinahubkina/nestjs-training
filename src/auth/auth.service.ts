@@ -5,10 +5,16 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.entity';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
+import { sendConfirmationEmail } from 'src/utils/postmark';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class AuthService {
-    constructor(private userService: UsersService, private jwtService: JwtService) { }
+    constructor(
+        private userService: UsersService,
+        private jwtService: JwtService,
+    ) { }
 
     async login(userDto: LoginUserDto) {
         const user = await this.validateUser(userDto);
@@ -27,7 +33,11 @@ export class AuthService {
 
         const hashPassword = await bcrypt.hash(userDto.password, 5);
         const user = await this.userService.createUser({ ...userDto, password: hashPassword });
-        return user;
+        if (user) {
+            const { token } = this.generateVerificationToken(user);
+            sendConfirmationEmail(user.email, user.firstName, token)
+        }
+        return `We\'ve sent an email to ${user.email}, please confirm your email address`;
 
     }
     private async generateToken(user: User) {
@@ -48,5 +58,20 @@ export class AuthService {
         } else {
             throw new UnauthorizedException('Wrong email or password.');
         }
+    }
+
+    private generateVerificationToken(user: User) {
+        const payload = { email: user.email };
+        return {
+            token: this.jwtService.sign(payload)
+        }
+
+    }
+
+    async confirmUser(token: string) {
+        const { email } = this.jwtService.verify(token);
+        console.log(email);
+        return this.userService.updateUserByEmail(email);
+        // const user = await this.userService.getUserByEmail(email);
     }
 }

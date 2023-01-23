@@ -35,4 +35,8 @@ export class User {
     @ApiProperty({ example: '+74964903948', description: 'Telephone number' })
     @Column({ type: 'varchar' })
     phoneNumber: string;
+
+    @ApiProperty({ example: true, description: 'Is user confirmed or not' })
+    @Column({ type: 'boolean', default: false })
+    isConfirmed: boolean;
 }

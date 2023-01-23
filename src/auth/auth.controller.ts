@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
@@ -20,4 +20,11 @@ export class AuthController {
     signup(@Body() userDto: CreateUserDto) {
         return this.authService.signup(userDto);
     }
+
+    @Get('/:token')
+    confirmEmail(@Param('token') token: string) {
+        return this.authService.confirmUser(token)
+    }
+
+
 }
