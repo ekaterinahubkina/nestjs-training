@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsEnum, IsOptional } from "class-validator";
-import { UserGenderType } from "src/utils/types";
+import { RoleType, UserGenderType } from "src/utils/types";
 
 export class UpdateUserDto {
     @ApiProperty({ example: 'male', description: 'Gender (male or female)' })
@@ -28,4 +28,9 @@ export class UpdateUserDto {
     @ApiProperty({ example: '+74964903948', description: 'Telephone number' })
     @IsOptional()
     readonly phoneNumber: string;
+
+    @ApiProperty({example: 'user', description: 'Role (user or admin)'})
+    @IsEnum(['user', 'admin'])
+    @IsOptional()
+    readonly role: RoleType;
 }

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { UserGenderType } from "src/utils/types";
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { RoleType, UserGenderType } from "src/utils/types";
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
 
 @Entity('users')
 export class User {
@@ -39,4 +39,17 @@ export class User {
     @ApiProperty({ example: true, description: 'Is user confirmed or not' })
     @Column({ type: 'boolean', default: false })
     isConfirmed: boolean;
+
+    @ApiProperty({ example: 'admin', description: 'Role of the user' })
+    @Column({
+        type: 'enum',
+        enum: ['user', 'admin'],
+        default: 'user'
+    })
+    role: RoleType
+
+
+    
+    // @ManyToOne(() => Role, (role) => role.users)
+    // role: Role;
 }

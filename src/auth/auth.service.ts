@@ -1,13 +1,11 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { UsersService } from 'src/users/users.service';
 import { User } from 'src/users/users.entity';
 import { LoginUserDto } from 'src/users/dto/login-user.dto';
-import { sendConfirmationEmail } from 'src/utils/postmark';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { sendConfirmationEmail } from 'src/services/postmark';
 
 @Injectable()
 export class AuthService {
@@ -20,9 +18,10 @@ export class AuthService {
         const user = await this.validateUser(userDto);
         if (!user) {
             throw new NotFoundException('User not found!')
+        } else if (!user.isConfirmed) {
+            throw new ForbiddenException('Please confirm your email address first')
         }
         return this.generateToken(user);
-
     }
 
     async signup(userDto: CreateUserDto) {
@@ -41,9 +40,9 @@ export class AuthService {
 
     }
     private async generateToken(user: User) {
-        const payload = { email: user.email, id: user.id };
+        const payload = { email: user.email, id: user.id, role: user.role };
         return {
-            token: this.jwtService.sign(payload)
+            token: this.jwtService.sign(payload, { expiresIn: '24h' })
         }
     }
 
@@ -63,15 +62,20 @@ export class AuthService {
     private generateVerificationToken(user: User) {
         const payload = { email: user.email };
         return {
-            token: this.jwtService.sign(payload)
+            token: this.jwtService.sign(payload, { expiresIn: '15m' })
         }
-
     }
 
     async confirmUser(token: string) {
-        const { email } = this.jwtService.verify(token);
-        console.log(email);
-        return this.userService.updateUserByEmail(email);
-        // const user = await this.userService.getUserByEmail(email);
+            const { email } = this.jwtService.verify(token);
+            if (!email) {
+                throw new HttpException('Token has expires', HttpStatus.BAD_REQUEST)
+            }
+            const user = await this.userService.getUserByEmail(email);
+            if (user.isConfirmed) {
+                throw new ConflictException('Email is already confirmed')
+            }
+
+            return this.userService.updateUserByEmail(email);
     }
 }

@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { User } from './users/users.entity';
@@ -12,29 +11,18 @@ import { MallsModule } from './malls/malls.module';
 import { StoresModule } from './stores/stores.module';
 import { Mall } from './malls/malls.entity';
 import { Store } from './stores/stores.entity';
+import { dataSourceOptions } from 'db/data-source';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env'
     }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.POSTGRES_HOST,
-      port: Number(process.env.POSTGRES_PORT),
-      username: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      database: process.env.POSTGRES_DATABASE,
-      entities: [User, Mall, Store],
-      synchronize: true,
-      ssl: {
-        rejectUnauthorized: false
-      }
-    }),
+    TypeOrmModule.forRoot(dataSourceOptions),
     UsersModule,
     AuthModule,
     MallsModule,
-    StoresModule
+    StoresModule,
   ],
   controllers: [AppController],
   providers: [AppService],

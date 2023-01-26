@@ -31,7 +31,7 @@ export class UsersService {
     async getUserByEmail(email: string) {
         const qb = this.userRepository.createQueryBuilder()
         const user = await qb
-            .select(["user.password", "user.email"])
+            .select(["user.password", "user.email", "user.id", "user.role", "user.isConfirmed"])
             .from(User, 'user')
             .where("user.email = :email", {
                 email: email

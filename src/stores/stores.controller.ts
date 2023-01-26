@@ -1,6 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from 'src/auth/auth.guard';
+import { Role } from 'src/auth/decorators/roles.decorator';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { RoleGuard } from 'src/auth/guards/role.guard';
 import { CreateStoreDto } from './dto/create-store.dto';
 import { UpdateStoreDto } from './dto/update-store.dto';
 import { Store } from './stores.entity';
@@ -8,14 +10,15 @@ import { StoresService } from './stores.service';
 
 @ApiTags('STORES')
 @Controller('stores')
-@UseGuards(AuthGuard)
+@UseGuards(AuthGuard, RoleGuard)
 export class StoresController {
     constructor(private storesService: StoresService) {
     }
 
     @ApiOperation({ summary: 'Create new store' })
-    @ApiResponse({ status: 201, type: Store })  
+    @ApiResponse({ status: 201, type: Store })
     @Post()
+    @Role('admin')
     create(@Body() storeDto: CreateStoreDto) {
         return this.storesService.createStore(storeDto)
     }
@@ -37,6 +40,7 @@ export class StoresController {
     @ApiOperation({ summary: 'Delete store' })
     @ApiResponse({ status: 200 })
     @Delete(':id')
+    @Role('admin')
     deleteStore(@Param('id') id: number) {
         return this.storesService.deleteStore(id)
     }
@@ -44,6 +48,7 @@ export class StoresController {
     @ApiOperation({ summary: 'Update store' })
     @ApiResponse({ status: 200 })
     @Patch(':id')
+    @Role('admin')
     updateStore(@Param('id') id: number, @Body() storeDto: UpdateStoreDto) {
         return this.storesService.updateStore(id, storeDto)
     }
