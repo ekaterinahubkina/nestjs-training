@@ -1,5 +1,5 @@
 # Base image
-FROM --platform=linux/amd64 node:18-alpine
+FROM node:18-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
