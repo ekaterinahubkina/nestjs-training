@@ -34,9 +34,9 @@ export class AuthService {
         const user = await this.userService.createUser({ ...userDto, password: hashPassword });
         if (user) {
             const { token } = this.generateVerificationToken(user);
-            sendConfirmationEmail(user.email, user.firstName, token)
+            sendConfirmationEmail(user.email, user.firstName, token);
         }
-        return `We\'ve sent an email to ${user.email}, please confirm your email address`;
+        return { message: `We\'ve sent an email to ${user.email}, please confirm your email address` };
 
     }
     private async generateToken(user: User) {
@@ -67,15 +67,20 @@ export class AuthService {
     }
 
     async confirmUser(token: string) {
-            const { email } = this.jwtService.verify(token);
-            if (!email) {
-                throw new HttpException('Token has expires', HttpStatus.BAD_REQUEST)
-            }
-            const user = await this.userService.getUserByEmail(email);
-            if (user.isConfirmed) {
-                throw new ConflictException('Email is already confirmed')
-            }
+        const { email } = this.jwtService.verify(token);
+        if (!email) {
+            throw new HttpException('Token has expires', HttpStatus.BAD_REQUEST)
+        }
+        const user = await this.userService.getUserByEmail(email);
+        if (user.isConfirmed) {
+            throw new ConflictException('Email is already confirmed')
+        }
 
-            return this.userService.updateUserByEmail(email);
+        const res = await this.userService.updateUserByEmail(email);
+        if (res.affected > 0) {
+            return { message: `User email: ${email} is now confirmed.` }
+        } else {
+            throw new HttpException('Something went wrong', HttpStatus.BAD_REQUEST)
+        }
     }
 }
