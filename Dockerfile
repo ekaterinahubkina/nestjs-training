@@ -10,6 +10,8 @@ COPY package*.json ./
 # Install app dependencies
 RUN npm install
 
+RUN npm install pm2 -g
+
 # Bundle app source
 COPY . .
 
@@ -19,4 +21,4 @@ RUN npm run build
 EXPOSE 80
 
 # Start the server using the production build
-CMD [ "node", "dist/src/main.js" ]
+CMD [ "pm2-runtime", "dist/src/main.js" ]
