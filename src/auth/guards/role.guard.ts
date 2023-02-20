@@ -22,6 +22,10 @@ export class RoleGuard implements CanActivate {
             const user = this.jwtService.verify(token);
             request.user = user;
             console.log(user)
+            if (user.role === 'admin') {
+                console.log('User is Admin')
+                return true;
+            }
             return user.role === role;
         } catch (error) {
             console.log(error)

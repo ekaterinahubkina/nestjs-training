@@ -26,6 +26,7 @@ export class StoresController {
     @ApiOperation({ summary: 'Get all stores' })
     @ApiResponse({ status: 200, type: [Store] })
     @Get()
+    @Role('user')
     getUsers() {
         return this.storesService.getStores()
     }
